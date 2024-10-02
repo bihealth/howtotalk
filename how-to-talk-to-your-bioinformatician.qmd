@@ -1,0 +1,181 @@
+---
+title: "Quarto CUBI template"
+author: 
+  - name: "January Weiner"
+    orcid: 0000-0003-1438-7819
+    affiliations:
+     - ref: cubi
+  - name: "N.N."
+    affiliations:
+     - ref: cubi
+affiliations:
+  - id: cubi
+    name: Core Unit for Bioinformatics, BIH@Charité
+    address: Charitéplatz 1, 
+    postal-code: 10117 
+    city: Berlin 
+    country: Germany
+title-slide-attributes:
+  data-background-image: files/bih_bg_logo.png
+format:
+  revealjs:
+    footer: "Core Unit for Bioinformatics, BIH@Charite"
+    theme: cubi.scss
+    logo: files/bih_logo_small.png
+    transition: fade
+    slide-number: true
+    smaller: true
+    navigation-mode: linear
+    self-contained: true
+---
+
+
+## Slide 1 
+
+To compile, type `quarto render template.qmd`
+
+Make sure you have Quarto 1.2 installed from
+[here](https://quarto.org/docs/download/prerelease.html).
+
+::: {.aside}
+This aside note can be used to add citations or notes
+:::
+
+## Multicolumn slide
+
+:::: {.columns}
+
+::: {.column width="40%" .fragment}
+### Left column title
+
+Left column...
+:::
+
+::: {.column width="60%" .fragment}
+### Right column title
+
+Right column (60%)...
+
+(adding `.fragment` causes the contents to be displayed in steps)
+:::
+
+::::
+
+
+
+# Part II separator slide {.inverse background-color="#70ADC1"}
+
+## Simple numbered and unnumbered lists
+
+:::: {.columns}
+
+::: {.column width="50%"}
+ * One
+ * Two
+:::
+
+::: {.column width="50%"}
+ 1. One
+ 2. Two
+:::
+
+::::
+
+## Incremental list
+
+::: {.incremental}
+ - Item 1
+ - Item 2
+ - Item 3
+:::
+
+
+## Incremental contents
+
+First part
+
+. . .
+
+Second part
+
+
+---
+
+This is a slide without a title (use the dashes to separate)
+
+## Transitions {transition="zoom"}
+
+Define them in the YAML header or like here, in the slide title.
+
+Types: none, fade, slide, convex, concave, zoom
+
+
+## Code 
+
+
+```{r}
+#| echo: true
+#| output-location: column-fragment
+#| label: fig-sample
+#| fig-cap: A dumb plot
+plot(1:10)
+```
+
+::: {.callout-tip}
+Ctrl-click on the image to zoom. And here is a `r pi` for you.
+:::
+
+## Code
+
+There are many customization options for the code. For example, you can
+highlight (and even animate) certain lines of code:
+
+
+```{r}
+#| code-line-numbers: "|1|2|3|"
+#| echo: true
+a <- rnorm(10)
+b <- rnorm(10) + a
+c <- a + b * rnorm(10)
+```
+
+You can also specify where precisely should the output of the code go:
+below the code (default), on the next slide, on a right-hand column...
+
+
+
+
+## Thank you {.inverse background-color="#70ADC1"}
+
+:::: {.columns}
+
+::: {.column width="40%"}
+Acknowledgements
+
+ - N.N.
+ - Y.Y.
+ 
+:::
+
+::: {.column width="40%"}
+Sources
+
+ - Source 1
+ - Source 2
+:::
+
+::: {.column width="20%"}
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+library(qrcode)
+plot(qr_code("https://google.com"))
+```
+
+
+
+:::
+
+
+::::
