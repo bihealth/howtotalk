@@ -1,11 +1,8 @@
 ---
-title: "Quarto CUBI template"
+title: "How to talk to your bioinformatician?"
 author: 
   - name: "January Weiner"
     orcid: 0000-0003-1438-7819
-    affiliations:
-     - ref: cubi
-  - name: "N.N."
     affiliations:
      - ref: cubi
 affiliations:
@@ -28,6 +25,110 @@ format:
     navigation-mode: linear
     self-contained: true
 ---
+
+
+# Part I {.inverse background-color="#70ADC1"}
+
+## Slide 1
+
+::: {.notes}
+ * Bioinformatics is not a service
+ * Bioinformatics is not a black box
+:::
+
+## Things bioinformaticians care about
+
+ * Experimental design
+ * The biological question
+ * Statistics
+ * Reproducibility
+ * File formats
+
+# Experimental design
+
+# Reproducibility
+
+# File formats
+
+## Excel and gene names
+
+:::: {.columns}
+::: {.column width="60%"}
+
+ * Excel converts some words to dates automatically
+ * Gene names like `MARCH1` are converted to dates
+ * In most cases, you can't switch off this behavior
+
+:::
+::: {.column width="5%"}
+:::
+
+::: {.column width="35%"}
+
+:::
+::::
+
+## Excel and gene names
+
+::: {.r-stack}
+![](images/excel_paper_1.png){.fragment .absolute top=150 left=10 width=80%}
+
+![](images/excel_hgnc.png){.fragment .absolute top=220 left=50 width=80%}
+
+![](images/excel_paper_2.png){.fragment .absolute top=350 left=90 width=80%}
+:::
+
+::: {.notes}
+2016 paper: 20% of papers have Excel gene name errors
+2021 paper: it is 30% now. Excel now learned mulitple languages
+:::
+
+
+
+## How (not to) work with Excel
+
+:::: {.columns}
+::: {.column width="60%"}
+
+### Never manually change Excel files
+
+ * Manual changes cannot be tracked
+ * You have to record every change you make
+ * Otherwise, this is not reproducible science!
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="35%"}
+
+
+:::
+::::
+
+
+
+## How (not to) work with Excel
+
+:::: {.columns}
+::: {.column width="60%"}
+
+### Never use formatting for data
+
+Never encode information as formatting, always use explicit columns
+
+Color / font size / font style cannot be read automatically 
+
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="35%"}
+
+![](images/excel_1.png)
+
+:::
+::::
 
 
 ## Slide 1 
