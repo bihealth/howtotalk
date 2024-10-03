@@ -3,5 +3,5 @@
 
 A presentation for non-bioinformaticians and bioinformaticians alike
 
-[Click here](how-to-talk-to-your-bioinformatician.html) for the
+[Click here](https://bihealth.github.io/howtotalk/how-to-talk-to-your-bioinformatician.html#/title-slide) for the
 presentation.
