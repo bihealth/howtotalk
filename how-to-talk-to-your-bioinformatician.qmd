@@ -27,40 +27,17 @@ format:
 ---
 
 
-# Part I {.inverse background-color="#70ADC1"}
+## Who am I to tell you things?
 
-## Slide 1
-
-::: {.notes}
- * Bioinformatics is not a service
- * Bioinformatics is not IT
- * Bioinformatics is not a black box
-:::
-
-## Bioinformatics vs statistics vs computational biology
+## Bioinformatics, statistics, computational biology
 
 ## Things bioinformaticians care about
 
- * Experimental design
  * The biological question
  * Statistics
+ * Experimental design
  * Reproducibility
  * File formats
-
-# Experimental design
-
-## How many samples are sufficient?
-
- * Depends on the question
- * Depends on the technology
- * Depends on the variability
-
-## How many samples are sufficient?
-
-
-## The bottom line
-
-### Talk to your bioinformatician early!
 
 # Statistics
 
@@ -120,6 +97,208 @@ You have to understand p-values and their limits to talk to other
 scientists!
 :::
 
+::: {.aside}
+Wasserstein RL, Lazar NA. The ASA statement on p-values: context, process, and purpose. The American Statistician. 2016 Apr 2;70(2):129-33.
+:::
+
+
+# Experimental design
+
+## How many samples are sufficient?
+
+:::: {.columns}
+::: {.column width="45%"}
+
+ * Depends on the question
+ * Depends on the technology
+ * Depends on the variability
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+![](images/pregnant.jpg)
+
+:::
+::::
+
+## How many samples are sufficient?
+
+Say, we want to compare two groups with a standard $t-test$, nothing fancy.
+Our ability to detect the differences (the statistical *power*) depends on
+the sample size and the effect size[^cohen].
+
+
+```{r echo=FALSE}
+#| label: effect_sizes
+#| fig-width: 9
+#| fig-height: 4
+# plot four effect sizes as boxplots
+library(tidyverse)
+library(ggplot2)
+library(ggbeeswarm)
+
+n_samp <- c(3, 4, 5, 7, 10, 15, 25)
+d <- c(Medium=0.5, Large=.8, "Very large"=1.2, Huge=2.0)
+n_samples <- 100
+
+df <- imap_dfr(d, ~ {
+  d_val <- .x
+  size <- .y
+
+  x <- rnorm(n_samples, mean = 0, sd = 1)
+  y <- rnorm(n_samples, mean = d_val, sd = 1)
+
+  data.frame(value = c(x, y), group = rep(c("A", "B"), each = n_samples), d = d_val, size=size)
+}) %>%
+  mutate(size = paste0(size, " (d=", d, ")")) %>%
+  mutate(size = factor(size, levels=c("Medium (d=0.5)", "Large (d=0.8)", "Very large (d=1.2)", "Huge (d=2)")))
+
+
+ggplot(df, aes(x = group, y = value, fill = group)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_beeswarm(alpha=.25, corral.width=1.5) +
+  facet_wrap(~ size, ncol=4) +
+  labs(x = "Group", y = "Value", fill = "Group") +
+  theme(legend.position = "none")
+```
+
+
+
+
+
+[^cohen]: Here we use Cohen's $d$
+
+## How many samples are sufficient?
+
+The $y$ axis on this plot shows how the power of the test – meaning how
+often, assuming that the groups really differ by $d$ on average, you will
+be able to detect the difference using a t-test.
+
+```{r echo=FALSE,cache=TRUE}
+#| label: power
+# we could use pwr package here, but simulation is more explicit
+
+# parameters
+n <- 1000
+
+# simulation
+power <- map_dfr(n_samp, ~ {
+  n_samples <- .x
+  map_dfr(d, ~ {
+    d_val <- .x
+    pwr <- map_dbl(1:n, ~ {
+      x <- rnorm(n_samples, mean = 0, sd = 1)
+      y <- rnorm(n_samples, mean = d_val, sd = 1)
+      t.test(x, y)$p.value
+    }) < 0.05
+    data.frame(n_samples = n_samples, d = d_val, power = mean(pwr))
+  })
+  
+}) %>%
+  mutate(study = "Simple t-test")
+```
+
+```{r}
+#| label: power_plot_simple
+#| fig-width: 9
+#| fig-height: 4
+
+ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
+  geom_point() +
+  geom_line() +
+  scale_color_discrete(name = "Effect size") +
+  scale_x_log10() +
+  labs(x = "Number of samples", y = "Power")
+
+```
+
+
+## How many samples are sufficient?
+
+What about the following setup:
+
+ * We have 2 strains (WT and KO)
+ * We have treatment + control
+ * We want to know whether the treatment has a different effect on the KO
+   strain than on the WT strain
+
+This is a 2x2 design, and we need to consider the interaction term.
+
+## How many samples are sufficient?
+
+```{r echo=FALSE,cache=TRUE}
+#| label: power_int
+# we could use pwr package here, but simulation is more explicit
+library(broom)
+
+# parameters
+n <- 1000
+
+# simulation
+power_int <- map_dfr(n_samp, ~ {
+  n_samples <- .x
+  map_dfr(d, ~ {
+    d_val <- .x
+    pwr <- map_dbl(1:n, ~ {
+      x <- rnorm(n_samples, mean = 0, sd = 1)
+      y <- rnorm(n_samples, mean = 0, sd = 1)
+      z <- rnorm(n_samples, mean = 0, sd = 1)
+      w <- rnorm(n_samples, mean = 1 * d_val, sd = 1)
+      df <- data.frame(x=c(x, y, z, w), 
+                       strain=rep(c("WT", "KO"), each=2 * n_samples),
+                       group=rep(c("Control", "Treatment"), each=n_samples))
+      mod <- lm(x ~ strain * group, data = df)
+      anova(mod)$`Pr(>F)`[3]
+    }) < 0.05
+    data.frame(n_samples = n_samples, d = d_val, power = mean(pwr))
+  })
+}) %>% 
+  mutate(study = "Interaction")
+```
+
+
+
+```{r echo=FALSE}
+#| label: power_plot
+
+power_tot <- rbind(power, power_int) %>%
+  mutate(study = factor(study, levels=c("Simple t-test", "Interaction")))
+
+ggplot(power_tot, aes(x = n_samples, y = power, color = factor(d))) +
+  geom_point() +
+  geom_line() +
+  scale_color_discrete(name = "Effect size") +
+  labs(x = "Number of samples", y = "Power") +
+  facet_wrap(~ study)
+```
+
+## How many samples are sufficient?
+
+That is not even the worse thing.
+
+Simple calculations show that assuming
+
+ * your power is 80% (really great!)
+ * $p-value$ cutoff is $0.05$
+ * 90% of the $H_0$ are true (i.e., 10% of the time the differences are
+   real)
+
+then 36% of your "significant" results **are false positives**[^more]!
+
+(Plus, you failed to detect 20% of the real differences)
+
+[^more]: I can walk you through a very simple demonstration later if you
+care.
+
+::: {.aside}
+Colquhoun D. An investigation of the false discovery rate and the misinterpretation of p-values. Royal Society open science. 2014 Nov 19;1(3):140216.
+:::
+ 
+## The bottom line
+
+### Talk to your bioinformatician early!
 
 # Reproducibility
 
@@ -237,6 +416,14 @@ In the diagram above, two things take usually the most hands-on time:
  * Data cleanup
  * Fine-tuning the analysis results
 
+## Identifiers
+
+
+::: {.notes}
+ * Identifiers are unique
+ * Identifiers are stable
+ * Identifiers are machine-readable
+:::
 
 ## Excel and gene names
 
@@ -461,10 +648,6 @@ at [https://github.com/bihealth/howtotalk](https://github.com/bihealth/howtotalk
 :::
 
 ::: {.column width="40%"}
-Sources
-
- - Source 1
- - Source 2
 :::
 
 ::: {.column width="20%"}
@@ -479,122 +662,5 @@ plot(qr_code("https://github.com/bihealth/howtotalk"))
 
 
 :::
-
-
 ::::
-
-## Slide 1 
-
-To compile, type `quarto render template.qmd`
-
-Make sure you have Quarto 1.2 installed from
-[here](https://quarto.org/docs/download/prerelease.html).
-
-::: {.aside}
-This aside note can be used to add citations or notes
-:::
-
-## Multicolumn slide
-
-:::: {.columns}
-
-::: {.column width="40%" .fragment}
-### Left column title
-
-Left column...
-:::
-
-::: {.column width="60%" .fragment}
-### Right column title
-
-Right column (60%)...
-
-(adding `.fragment` causes the contents to be displayed in steps)
-:::
-
-::::
-
-
-
-# Part II separator slide {.inverse background-color="#70ADC1"}
-
-## Simple numbered and unnumbered lists
-
-:::: {.columns}
-
-::: {.column width="50%"}
- * One
- * Two
-:::
-
-::: {.column width="50%"}
- 1. One
- 2. Two
-:::
-
-::::
-
-## Incremental list
-
-::: {.incremental}
- - Item 1
- - Item 2
- - Item 3
-:::
-
-
-## Incremental contents
-
-First part
-
-. . .
-
-Second part
-
-
----
-
-This is a slide without a title (use the dashes to separate)
-
-## Transitions {transition="zoom"}
-
-Define them in the YAML header or like here, in the slide title.
-
-Types: none, fade, slide, convex, concave, zoom
-
-
-## Code 
-
-
-```{r}
-#| echo: true
-#| output-location: column-fragment
-#| label: fig-sample
-#| fig-cap: A dumb plot
-plot(1:10)
-```
-
-::: {.callout-tip}
-Ctrl-click on the image to zoom. And here is a `r pi` for you.
-:::
-
-## Code
-
-There are many customization options for the code. For example, you can
-highlight (and even animate) certain lines of code:
-
-
-```{r}
-#| code-line-numbers: "|1|2|3|"
-#| echo: true
-a <- rnorm(10)
-b <- rnorm(10) + a
-c <- a + b * rnorm(10)
-```
-
-You can also specify where precisely should the output of the code go:
-below the code (default), on the next slide, on a right-hand column...
-
-
-
 
