@@ -24,6 +24,11 @@ format:
     smaller: true
     navigation-mode: linear
     self-contained: true
+comments:
+  hypothesis: true
+knitr:
+  opts_chunk:
+    dev: "svg"
 ---
 
 
