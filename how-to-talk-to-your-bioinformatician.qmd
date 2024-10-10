@@ -31,11 +31,11 @@ knitr:
     dev: "svg"
 ---
 
+# Who am I to tell you things?
+
 ```{scss}
 $callout-color-tip: #70ADC1;
 ```
-
-
 
 ```{css, echo=FALSE}
 .large {
@@ -81,7 +81,6 @@ theme_set(theme_minimal())
 
 
 
-## Who am I to tell you things?
 
 
 ## Bioinformatics, statistics, computational biology
@@ -204,11 +203,28 @@ We run a test, we get a p-value, say $0.03$. It is a probability.
 
 Probability of *what*, exactly?
 
+Raise your hands if you think that the p-value is the...
+
+ . . .
+
+
  1. Probability that $H_0$ is true, given the data
+
+ . . .
+
  1. Probability that $H_1$ is wrong, given the data
+
+ . . .
+
  1. Probability that the data is random
+
+ . . .
+
  1. Probability that the observations are due to random chance
- 1. Something else?
+
+ . . .
+
+ 1. Probability of getting the same data by random chance
 
  . . .
 
@@ -226,7 +242,6 @@ The $H_0$ is true or false, there is no probability involved.
 
 ## Our intuition is bayesian, not frequentist
 
-::: {.fragment}
 
 | **Frequentist Statistics**    | **Bayesian Statistics**     |
 |-------------------------------|-----------------------------|
@@ -235,13 +250,11 @@ The $H_0$ is true or false, there is no probability involved.
 | 2. Parameters (like the "true value") are fixed but unknown quantities. | 2. Parameters are treated as random variables with their own probability distributions. |
 | 3. Asking about the probability of a hypothesis does not make sense | 3. Asking about the probability of a hypothesis is the main goal |
 
+::: {.aside}
+
+Ask me later to show you the coin trick!
+
 :::
-
-## Going beyond the p-value
-
-  * Confidence intervals
-  * Effect sizes
-  * Power analysis
 
 ## Why is that important?
 
@@ -324,17 +337,19 @@ not different at all.
 
 ![](images/fig2-1.jpeg)
 
-
-# Experimental design
-
-## How many samples are sufficient?
+## Going beyond p-values
 
 :::: {.columns}
 ::: {.column width="45%"}
 
- * Depends on the question
- * Depends on the technology
- * Depends on the variability
+  * Estimation rather than testing (e.g. confidence intervals rather than
+    p-values)
+  * Considering effect sizes
+  * Power analysis – estimating type II error rates (false negatives)
+  * Sign / magnitute errors 
+  * Bayesian statistics
+  * Correcting for multiple testing
+
 
 :::
 ::: {.column width="10%"}
@@ -345,6 +360,9 @@ not different at all.
 
 :::
 ::::
+
+
+# Experimental design
 
 ## How many samples are sufficient?
 
@@ -429,13 +447,13 @@ power <- map_dfr(n_samp, ~ {
 #| fig-height: 4
 power$n_samples_tot <- 2 * power$n_samples
 
-ggplot(power, aes(x = n_samples_tot, y = power, color = factor(d))) +
+ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
   geom_point() +
   geom_line() +
   scale_color_brewer(palette = "Dark2", name="Effect size",
     guide=guide_legend(reverse=TRUE)) +
   scale_x_log10() +
-  labs(x = "Number of samples (total)", y = "Power")
+  labs(x = "Number of samples (per group)", y = "Power")
 
 ```
 
@@ -496,12 +514,12 @@ power_tot <- rbind(power, power_int) %>%
   mutate(study = factor(study, levels=c("Simple t-test", "Interaction")))
 power_tot$dfac <- factor(power_tot$d)
 power_tot$dfac <- factor(power_tot$d, levels=rev(levels(power_tot$dfac)))
-ggplot(power_tot, aes(x = n_samples_tot, y = power, color = factor(d))) +
+ggplot(power_tot, aes(x = n_samples, y = power, color = factor(d))) +
   geom_point() +
   geom_line() +
   scale_color_brewer(palette = "Dark2", name="Effect size",
     guide=guide_legend(reverse=TRUE)) +
-  labs(x = "Number of samples (total)", y = "Power") +
+  labs(x = "Number of samples (per group)", y = "Power") +
   facet_wrap(~ study, scales = "free_x")
 ```
 
@@ -536,6 +554,7 @@ Colquhoun D. An investigation of the false discovery rate and the misinterpretat
  Keep your study design simple!
 :::
 
+# Is high throughput data worth it?
 
 ## {.inverse background-color="#000000"}
 
@@ -547,14 +566,14 @@ Colquhoun D. An investigation of the false discovery rate and the misinterpretat
 :::
 ::: {.column width="10%"}
 :::
-::: {.column width="45%" .fragment}
+::: {.column width="45%"}
 
 ::: {.r-stack}
 ![](images/arnolfini_2.jpg){.fragment}
 
-![](images/arnolfini_3.png){.fragment}
-
 ![](images/arnolfini_3a.png){.fragment}
+
+![](images/arnolfini_3.png){.fragment}
 
 ![](images/arnolfini_4.jpg){.fragment}
 
@@ -614,81 +633,7 @@ Almost as many as van Eyck painted during his whole life
 
 :::
 
-## The bottom line
-
-:::: {.columns}
-::: {.column width="45%"}
-
-::: {.callout-tip}
-## Do
-
- * Formulate clear questions
-
- * Manage your expectations
-
- * Evaluate existing data - is the assay able to answer your questions?
-
- * Read papers – which ones are similar to your study?
-
- * Validate your results
-
-:::
-
-:::
-::: {.column width="10%"}
-:::
-::: {.column width="45%"}
-
-::: {.callout-warning}
-## Don't
-
- * expect miracles
- 
- * "let's just see what we can find"
-
- * try to save money
-
- * make too complex designs
-
-:::
-
-:::
-::::
-
-## The statistical testing roulette
-
-![](images/salmon_1.png)
-
-## The statistical testing roulette
-
-:::: {.columns}
-::: {.column width="45%"}
-
-**Subject.** One mature Atlantic Salmon (Salmo salar) participated in the fMRI study.
-The salmon was approximately 18 inches long, weighed 3.8 lbs, and was not alive at
-the time of scanning.
-
-**Task.** The task administered to the salmon involved completing an open-ended
-mentalizing task. The salmon was shown a series of photographs depicting human
-individuals in social situations with a specified emotional valence. The salmon was
-asked to determine what emotion the individual in the photo must have been
-experiencing.
-
-:::
-::: {.column width="10%"}
-:::
-::: {.column width="45%"}
-
-![](images/salmon_2.png)
-
-:::
-::::
-
-::: {.aside}
-Bennett CM, Miller MB, Wolford GL. Neural correlates of interspecies perspective taking in the post-mortem Atlantic Salmon: An argument for multiple comparisons correction. Neuroimage. 2009 Jul 1;47(Suppl 1):S125.
-:::
-
-## The bottom line
+## Explorative vs hypothesis testing
 
 :::: {.columns}
 ::: {.column width="45%"}
@@ -736,6 +681,48 @@ Bennett CM, Miller MB, Wolford GL. Neural correlates of interspecies perspective
 ## Bottom line
  Work with a-priori hypotheses whenever you can!
 :::
+
+
+## The bottom line
+
+:::: {.columns}
+::: {.column width="45%"}
+
+::: {.callout-tip}
+## Do
+
+ * Formulate clear questions
+
+ * Manage your expectations
+
+ * Evaluate existing data - is the assay able to answer your questions?
+
+ * Read papers – which ones are similar to your study?
+
+ * Validate your results
+
+:::
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+::: {.callout-warning}
+## Don't
+
+ * expect miracles
+ 
+ * "let's just see what we can find"
+
+ * try to save money
+
+ * make too complex designs
+
+:::
+
+:::
+::::
 
 # Reproducibility
 
@@ -798,44 +785,6 @@ Errington TM, Mathur M, Soderberg CK, Denis A, Perfito N, Iorns E, Nosek BA. Inv
 Errington TM, Denis A, Perfito N, Iorns E, Nosek BA. Challenges for assessing replicability in preclinical cancer biology. Elife. 2021 Dec 7;10:e67995.
 :::
 
-## Reproducible workflows with Rmarkdown
-
-```{mermaid}
-flowchart LR
-    A(Program + Text) -->|knitr| B(Text with\nanalysis results)
-    B --> C[LaTeX]
-    C --> CC[PDF]
-    B --> D[Word]
-    B --> E[HTML]
-    B --> F[Presentation]
-    B --> G[Book]
-```
-
-*This can be Rmarkdown, Quarto, Jupyter... the goal is that your code and
-your text are in one place, and the results of your calculations are
-entered automatically into the text.*
-
-## Reproducible workflows with Rmarkdown
-
-
-```{r include=FALSE}
-p <- 0.05
-```
-
-In systems such ar R markdown, you can put directly your
-analysis results in your text. For example, when I write that the
-$p$-value is equal to `r p`, I am writing this:
-
-```markdown
-In systems such ar R markdown, you can put directly your
-analysis results in your text. For example, when I write that the
-$p$-value is equal to `​r p`, I am writing this:
-```
-
-The $p$-value above is not entered manually (as 0.05), but is the result of
-a statistical computation. If the data changes, if your analysis changes,
-the $p$-value above will automatically change as well.
-
 
 # File formats and data management
 
@@ -889,31 +838,8 @@ flowchart LR
 
 In the diagram above, two things take usually a lot of hands-on time:
 
- * Data cleanup
+ * Understanding and cleaning the data
  * Fine-tuning the analysis results
-
-## Identifiers
-
- * Never use "pure numerical" identifiers (`1`, `2`, `3`, ...)
- * Never remove columns with "unneeded" identifiers or you can get
-   "involuntary anonymization"
- * If you identifier is, say, `S1`, then always refer to that sample as `S1`, not `Smp. 1` or `1`
-   or `Sample 1`
- * Better use a unique prefix for a study / cohort / experiment, like
-   `RCDB2024_S1`, `RCDB2024_S2`, `RCDB2025_S1`, `RCDB2025_S2`
- * Composite identifiers are fine, as long as you use them consistently:
-   `WT_treatment_1`, `KO_control_2` and not `WT_treatment_1`,
-   `KO-2-control`, `WT_ctrl2`
-
-
-::: {.notes}
-I have been working in a lab, I know how it is, you can only fit so many
-letters on the cap of an Eppendorf tube
-
- * Identifiers are unique
- * Identifiers are stable
- * Identifiers are machine-readable
-:::
 
 ## Excel and gene names
 
@@ -921,7 +847,7 @@ letters on the cap of an Eppendorf tube
 ::: {.column width="60%"}
 
  * Excel converts some words to dates automatically
- * Gene names like `MARCH1` are converted to dates
+ * Gene names like `MARCH1` or `SEPT9` are converted to dates
  * In most cases[^cases], you can't switch off this behavior
 
 [^cases]: You can change the data type for a column to "text" before
@@ -960,16 +886,190 @@ Abeysooriya M, Soria M, Kasu MS, Ziemann M. Gene name errors: Lessons not learne
 2021 paper: it is 30% now. Excel now learned mulitple languages
 :::
 
+## Is Excel suitable for science?
+
+ * How do you record changes?
+ * How do you prevent automatic changes?
+ * In short – how do you ensure reproducibility?
+
+## How to give us (meta-)data
+
+Part of the communication is passing on the data.
+
+ 1. Make sure the data is **complete** (batches? replicates?)
+ 1. Identifiers should be unique and non-numeric (`ID1` rather than `1`)
+ 2. Use a separate sheet to describe the meaning of columns
+ 3. Explain abbreviations
+ 4. Make the data machine-friendly
+ 5. Disclose precisely all methods (like models, kit labels etc, request them from service providers!)
+
+
+## What you should demand from your bioinformaticians
+
+ * Methods used
+ * Scripts / pipelines used
+ * Full processed data
+ * All results as tables (Excel, CSV etc)
+
+Even if you don't know what to do with all that *now*, you might be needing
+it in the future!
+
+
 ## How (not to) work with Excel
 
-Three reasons why you should follow these rules:
+(for your reference)
 
- 1. Fewer chances of errors
- 1. You bioinformaticians will love you
- 2. The analysis will be done much faster
+ * Avoid manually changing Excel files
+ * Never use formatting for data
+ * Don't combine values and comments
+ * Don't put meta-information into column names
+ * One sheet = one table
+ * Header = one line
+ * Do not use merged cells
+ * Use consistent file names
+ * Avoid spaces in file and column names (use underscores)
+
+
+# Some more tips and summaries
+
+## 
+
+:::: {.columns}
+::: {.column width="45%"}
+
+### Things we don't like
+
+ * Cleaning up data
+ * Data dredging
+ * P-hacking
+ * Post-hoc hypotheses
+ * Excel
+ * Manual changes like changing fonts in figures
+ * Non-reproducible science
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+### Things we love
+
+ * Clear questions
+ * A priori hypotheses
+ * Challenging statistics
+ * Creating new tools
+ * R and Rmarkdown, or
+ * Python and Jupyter
+ * Reproducible workflows
+ * Well organized data
+
+:::
+::::
+
+## Things that you might want to learn
+
+ * Statistics
+ * Coding (likely R or Python)
+ * Reproducible workflows with Quarto/Rmarkdown or Jupyter
+
+Even if you are not going to use these tools yourself, gaining an insight
+into how they work will help you to communicate with your bioinformatician.
+
+## Thank you {.inverse background-color="#000000"}
+
+:::: {.columns}
+
+::: {.column width="40%"}
+You can find this presentation along its source code 
+at [https://github.com/bihealth/howtotalk](https://github.com/bihealth/howtotalk)
+
+A 5 day R crash course book is available at 
+[https://bihealth.github.io/RCrashcourse-book/](https://bihealth.github.io/RCrashcourse-book/)
+
+Course materials & videos:
+[https://bihealth.github.io/RCrashcourse2023/](https://bihealth.github.io/RCrashcourse-book/)
+ 
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| label: qr
+#| fig-width: 4.5
+#| fig-height: 4.5
+library(qrcode)
+plot(qr_code("https://github.com/bihealth/howtotalk"))
+```
 
 
 
+:::
+::::
+
+
+## Reproducible workflows with Rmarkdown
+
+```{mermaid}
+flowchart LR
+    A(Program + Text) -->|knitr| B(Text with\nanalysis results)
+    B --> C[LaTeX]
+    C --> CC[PDF]
+    B --> D[Word]
+    B --> E[HTML]
+    B --> F[Presentation]
+    B --> G[Book]
+```
+
+*This can be Rmarkdown, Quarto, Jupyter... the goal is that your code and
+your text are in one place, and the results of your calculations are
+entered automatically into the text.*
+
+## Reproducible workflows with Rmarkdown
+
+
+```{r include=FALSE}
+p <- 0.05
+```
+
+In systems such ar R markdown, you can put directly your
+analysis results in your text. For example, when I write that the
+$p$-value is equal to `r p`, I am writing this:
+
+```markdown
+In systems such ar R markdown, you can put directly your
+analysis results in your text. For example, when I write that the
+$p$-value is equal to `​r p`, I am writing this:
+```
+
+The $p$-value above is not entered manually (as 0.05), but is the result of
+a statistical computation. If the data changes, if your analysis changes,
+the $p$-value above will automatically change as well.
+
+## Identifiers
+
+ * Never use "pure numerical" identifiers (`1`, `2`, `3`, ...)
+ * Never remove columns with "unneeded" identifiers or you can get
+   "involuntary anonymization"
+ * If you identifier is, say, `S1`, then always refer to that sample as `S1`, not `Smp. 1` or `1`
+   or `Sample 1`
+ * Better use a unique prefix for a study / cohort / experiment, like
+   `RCDB2024_S1`, `RCDB2024_S2`, `RCDB2025_S1`, `RCDB2025_S2`
+ * Composite identifiers are fine, as long as you use them consistently:
+   `WT_treatment_1`, `KO_control_2` and not `WT_treatment_1`,
+   `KO-2-control`, `WT_ctrl2`
+
+
+::: {.notes}
+I have been working in a lab, I know how it is, you can only fit so many
+letters on the cap of an Eppendorf tube
+
+ * Identifiers are unique
+ * Identifiers are stable
+ * Identifiers are machine-readable
+:::
 
 
 ## How (not to) work with Excel
@@ -1068,99 +1168,38 @@ Make a separate excel sheet for column meta information
 ::::
 
 
+## The statistical testing roulette
+
+![](images/salmon_1.png)
 
 
-## How (not to) work with Excel
-
-(for your reference)
-
- * Avoid manually changing Excel files
- * Never use formatting for data
- * Don't combine values and comments
- * Don't put meta-information into column names
- * One sheet = one table
- * Header = one line
- * Do not use merged cells
- * Use consistent file names
- * Avoid spaces in file and column names (use underscores)
-
-
-# Some more tips and summaries
-
-## 
+## The statistical testing roulette
 
 :::: {.columns}
 ::: {.column width="45%"}
 
-### Things we don't like
+**Subject.** One mature Atlantic Salmon (Salmo salar) participated in the fMRI study.
+The salmon was approximately 18 inches long, weighed 3.8 lbs, and was not alive at
+the time of scanning.
 
- * Cleaning up data
- * Data dredging
- * P-hacking
- * Post-hoc hypotheses
- * Excel
- * Manual changes like changing fonts in figures
- * Non-reproducible science
+**Task.** The task administered to the salmon involved completing an open-ended
+mentalizing task. The salmon was shown a series of photographs depicting human
+individuals in social situations with a specified emotional valence. The salmon was
+asked to determine what emotion the individual in the photo must have been
+experiencing.
 
 :::
 ::: {.column width="10%"}
 :::
 ::: {.column width="45%"}
 
-### Things we love
-
- * Clear questions
- * A priori hypotheses
- * Challenging statistics
- * Creating new tools
- * R and Rmarkdown, or
- * Python and Jupyter
- * Reproducible workflows
- * Well organized data
+![](images/salmon_2.png)
 
 :::
 ::::
 
-## Things that you might want to learn
-
- * Statistics
- * Coding (likely R or Python)
- * Reproducible workflows with Quarto/Rmarkdown or Jupyter
-
-Even if you are not going to use these tools yourself, gaining an insight
-into how they work will help you to communicate with your bioinformatician.
-
-## Thank you {.inverse background-color="#000000"}
-
-:::: {.columns}
-
-::: {.column width="40%"}
-You can find this presentation along its source code 
-at [https://github.com/bihealth/howtotalk](https://github.com/bihealth/howtotalk)
-
-A 5 day R crash course book is available at 
-[https://bihealth.github.io/RCrashcourse-book/](https://bihealth.github.io/RCrashcourse-book/)
-
-Course materials & videos:
-[https://bihealth.github.io/RCrashcourse2023/](https://bihealth.github.io/RCrashcourse-book/)
- 
+::: {.aside}
+Bennett CM, Miller MB, Wolford GL. Neural correlates of interspecies perspective taking in the post-mortem Atlantic Salmon: An argument for multiple comparisons correction. Neuroimage. 2009 Jul 1;47(Suppl 1):S125.
 :::
 
-::: {.column width="10%"}
-:::
-
-::: {.column width="50%"}
-
-```{r}
-#| label: qr
-#| fig-width: 4.5
-#| fig-height: 4.5
-library(qrcode)
-plot(qr_code("https://github.com/bihealth/howtotalk"))
-```
-
-
-
-:::
-::::
 
