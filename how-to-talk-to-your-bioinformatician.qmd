@@ -31,18 +31,162 @@ knitr:
     dev: "svg"
 ---
 
+```{scss}
+$callout-color-tip: #70ADC1;
+```
+
+
+
+```{css, echo=FALSE}
+.large {
+  font-size: 1.5em !important;
+  background-color: "#481567" !important;
+  color: white !important;
+}
+
+.theme-light .mermaid {
+    --color-red: #ff7777;
+    --color-orange: #ffbb99;
+    --color-yellow: #ffeeaa;
+    --color-green: #bbffbb;
+    --color-cyan: #bbffee;
+    --color-blue: #aaccff;
+    --color-purple: #ddbbff;
+    --color-pink: #ffcccc;
+}
+
+.viri1 {
+  background-color: "#481567";
+  color: white;
+}
+
+.whosaid {
+  text-align: right !important;
+}
+
+.aside {
+  font-size: 0.65em !important;
+}
+```
+
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+#| label: setup
+library(tidyverse)
+library(ggplot2)
+
+theme_set(theme_minimal())
+```
+
+
+
 
 ## Who am I to tell you things?
 
+
 ## Bioinformatics, statistics, computational biology
 
-## Things bioinformaticians care about
+```{dot}
+#| fig-width: 12
+graph G {
+  layout = "neato"
+  fontname = "Helvetica,Arial,sans-serif"
+  scale = 1.2
+
+  node [
+		style = filled
+		color = "#000000"
+		fontname = "Helvetica,Arial,sans-serif"
+    fontsize = 10
+    shape = "box"
+	]
+
+  statistics [ fillcolor="#F8B229", style=filled, label="Statistics", fontsize=18 ]
+  bioinformatics [ fontcolor="white", fillcolor="#481567", style=filled, label="Bioinformatics", fontsize=18 ]
+  cbio [ fontcolor="white", fillcolor="#33638d", style=filled, label="Computational\nbiology", fontsize=18 ]
+
+  "Computers and science" [ fontcolor="white", fontsize=20, label = "Computers\nand\nScience" ]
+
+  "Computers and science" -- bioinformatics
+  "Computers and science" -- cbio
+  "Computers and science" -- statistics
+
+
+  subgraph Bioinformatics {
+    node [ style=filled, fillcolor="#481567cc", fontcolor="white", fontsize=14 ]
+    bioinformatics -- algorithms -- implementation
+    bioinformatics -- formalizations
+    bioinformatics -- standards
+    bioinformatics -- databases -- maintenance
+  }
+
+  subgraph cbio {
+      node [ fontcolor="white", fillcolor="#33638dcc", style=filled, fontsize=14 ]
+      cbio -- "data\nscience" -- "data\nstewardship"
+      cbio -- "functional\ngenomics"
+      "functional\ngenomics" -- "gene set\nenrichment"
+      cbio -- "using tools"
+      cbio -- "sequence\nanalysis" -- "phylogenies"
+  }
+
+  subgraph Statistics {
+      node [ fillcolor="#F8B22999cc", style=filled, fontsize=14 ]
+      statistics -- "hypothesis\ntesting"
+      "hypothesis\ntesting" -- "p-values"
+      "hypothesis\ntesting" -- "effect sizes"
+      statistics -- "power analysis"
+      statistics -- "linear\nmodeling" -- "hierarchical\nmodeling"
+      statistics -- "visualizations"
+      statistics -- "Bayesian\nstatistics"
+  }
+
+}
+```
+
+
+
+
+
+
+
+::: {.notes}
+
+ * What you call "bioinformatics" are different areas of science
+ * We can't know all biology, so be patient with us
+ * Bioinformatics is not a service
+ * Bioinformatics is a scientific collaboration 
+
+Be patient with us. We are not stupid, but we don't know your context, your
+field, your abbreviations.
+
+:::
+
+##
+
+::: {.callout-tip}
+## First bottom line
+
+**Talk!**
+
+Keep explaining your project – teach us!
+
+(it goes both ways)
+
+:::
+
+## Things bioinformaticians care about {.incremental}
 
  * The biological question
  * Statistics
  * Experimental design
+ * Quality control
  * Reproducibility
- * File formats
+ * Consistency
+
+::: {.notes}
+  Differences between "amateur" bioinformaticians like me a while ago and
+  "professionals" are mostly in the QC and reproducibility part
+:::
 
 # Statistics
 
@@ -56,18 +200,28 @@ $H_0$: The null hypothesis, no effect
 
 $H_1$: The alternative hypothesis, there is an effect
 
-We run a test, we get a p-value. What is it?
+We run a test, we get a p-value, say $0.03$. It is a probability.
 
- * Probability that $H_0$ is true, given the data
- * Probability that $H_1$ is wrong, given the data
- * Probability that the data is random
+Probability of *what*, exactly?
+
+ 1. Probability that $H_0$ is true, given the data
+ 1. Probability that $H_1$ is wrong, given the data
+ 1. Probability that the data is random
+ 1. Probability that the observations are due to random chance
+ 1. Something else?
 
  . . .
 
- * **Probability of observing the data, given $H_0$ is true**
+ * **Probability of observing an effect at least as extreme given that $H_0$ is true**
 
 ::: {.notes}
-None of that is true
+None of that is true.
+
+P-values are not what we intiutively think they are. 
+
+They are in fact way less useful than we think they are.
+
+The $H_0$ is true or false, there is no probability involved.
 :::
 
 ## Our intuition is bayesian, not frequentist
@@ -94,10 +248,12 @@ None of that is true
 P-values are the *language* of science, whether we like them (we don't) or
 not.
 
- * Use effect sizes *always*
+ * *Always* use effect sizes 
  * Never rely on p-values alone
+ * Know their limits!!
 
 ::: {.callout-tip}
+## P-values are a language
 You have to understand p-values and their limits to talk to other
 scientists!
 :::
@@ -105,6 +261,68 @@ scientists!
 ::: {.aside}
 Wasserstein RL, Lazar NA. The ASA statement on p-values: context, process, and purpose. The American Statistician. 2016 Apr 2;70(2):129-33.
 :::
+
+## How Venn diagrams can fool scientists
+
+COVID-19 study, both COVID-19 patients and non-COVID-19 patients are
+compared in two groups of people, *G1* and *G2*. 
+
+We wanted to know whether the influence of COVID-19 is different in these
+two groups.
+
+![](images/fig1-1.jpeg)
+
+
+::: {.aside}
+Venn diagrams may indicate erroneous statistical reasoning in
+transcriptomics. Weiner, Obermayer and Beule, 2022, Frontiers Genetics
+:::
+
+
+## What happens is, we are comparing significance with non-significance
+
+> The Difference Between “Significant” and “Not Significant” is not
+> Itself Statistically Significant
+
+::: {.whosaid}
+   (*Andrew Gelman and Howard Stern*)
+:::
+
+If a gene is significant in one comparison, and not significant in another,
+that does not mean that there is a difference between the two groups.
+
+It simply means that we *failed* to detect the difference in one of the
+comparisons, but that is actually quite likely to happen!
+
+::: {.callout-tip}
+## Therefore:
+Don't say "there is no difference". Say "we did not detect a difference".
+:::
+
+::: {.aside}
+Gelman A, Stern H. The difference between “significant” and “not significant” is not itself statistically significant. The American Statistician. 2006 Nov 1;60(4):328-31.
+:::
+
+## How Venn diagrams can fool scientists
+
+Nieuwenhuis et al. found that half of the scientists who could have
+commited this error, did in fact commit this error.
+
+![](images/erroneous_analyses.webp)
+
+::: {.aside}
+Nieuwenhuis, Sander, Birte U. Forstmann, and Eric-Jan
+Wagenmakers. "Erroneous analyses of interactions in neuroscience: a problem
+of significance." Nature neuroscience 14.9 (2011): 1105-1107.
+:::
+
+
+## The results are artifacts!
+
+Groups G1 and G2 were randomly drawn from the same population. They were
+not different at all.
+
+![](images/fig2-1.jpeg)
 
 
 # Experimental design
@@ -145,7 +363,7 @@ library(ggplot2)
 library(ggbeeswarm)
 
 n_samp <- c(3, 4, 5, 7, 10, 15, 25)
-d <- c(Medium=0.5, Large=.8, "Very large"=1.2, Huge=2.0)
+d <- c(Large=.8, "Very large"=1.2, Huge=2.0, Ludicrous=4.0)
 n_samples <- 100
 
 df <- imap_dfr(d, ~ {
@@ -158,7 +376,7 @@ df <- imap_dfr(d, ~ {
   data.frame(value = c(x, y), group = rep(c("A", "B"), each = n_samples), d = d_val, size=size)
 }) %>%
   mutate(size = paste0(size, " (d=", d, ")")) %>%
-  mutate(size = factor(size, levels=c("Medium (d=0.5)", "Large (d=0.8)", "Very large (d=1.2)", "Huge (d=2)")))
+  mutate(size = factor(size, levels=c("Large (d=0.8)", "Very large (d=1.2)", "Huge (d=2)", "Ludicrous (d=4)")))
 
 
 ggplot(df, aes(x = group, y = value, fill = group)) +
@@ -186,7 +404,7 @@ be able to detect the difference using a t-test.
 # we could use pwr package here, but simulation is more explicit
 
 # parameters
-n <- 1000
+n <- 10000
 
 # simulation
 power <- map_dfr(n_samp, ~ {
@@ -209,16 +427,21 @@ power <- map_dfr(n_samp, ~ {
 #| label: power_plot_simple
 #| fig-width: 9
 #| fig-height: 4
+power$n_samples_tot <- 2 * power$n_samples
 
-ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
+ggplot(power, aes(x = n_samples_tot, y = power, color = factor(d))) +
   geom_point() +
   geom_line() +
-  scale_color_discrete(name = "Effect size") +
+  scale_color_brewer(palette = "Dark2", name="Effect size",
+    guide=guide_legend(reverse=TRUE)) +
   scale_x_log10() +
-  labs(x = "Number of samples", y = "Power")
+  labs(x = "Number of samples (total)", y = "Power")
 
 ```
 
+**Power**: power of 50% means that on average, you will be able to see
+statistical significance in 50% of the experiments *assuming there is a
+difference!*
 
 ## How many samples are sufficient?
 
@@ -267,16 +490,19 @@ power_int <- map_dfr(n_samp, ~ {
 
 ```{r echo=FALSE}
 #| label: power_plot
+power_int$n_samples_tot <- power_int$n_samples * 4
 
 power_tot <- rbind(power, power_int) %>%
   mutate(study = factor(study, levels=c("Simple t-test", "Interaction")))
-
-ggplot(power_tot, aes(x = n_samples, y = power, color = factor(d))) +
+power_tot$dfac <- factor(power_tot$d)
+power_tot$dfac <- factor(power_tot$d, levels=rev(levels(power_tot$dfac)))
+ggplot(power_tot, aes(x = n_samples_tot, y = power, color = factor(d))) +
   geom_point() +
   geom_line() +
-  scale_color_discrete(name = "Effect size") +
-  labs(x = "Number of samples", y = "Power") +
-  facet_wrap(~ study)
+  scale_color_brewer(palette = "Dark2", name="Effect size",
+    guide=guide_legend(reverse=TRUE)) +
+  labs(x = "Number of samples (total)", y = "Power") +
+  facet_wrap(~ study, scales = "free_x")
 ```
 
 ## How many samples are sufficient?
@@ -301,9 +527,215 @@ care.
 Colquhoun D. An investigation of the false discovery rate and the misinterpretation of p-values. Royal Society open science. 2014 Nov 19;1(3):140216.
 :::
  
+## 
+
+::: {.callout-tip}
+## Bottom line
+ Talk to your statistician early!
+
+ Keep your study design simple!
+:::
+
+
+## {.inverse background-color="#000000"}
+
+:::: {.columns}
+::: {.column width="45%"}
+
+![](images/arnolfini.jpg)
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%" .fragment}
+
+::: {.r-stack}
+![](images/arnolfini_2.jpg){.fragment}
+
+![](images/arnolfini_3.png){.fragment}
+
+![](images/arnolfini_3a.png){.fragment}
+
+![](images/arnolfini_4.jpg){.fragment}
+
+![](images/arnolfini_5.png){.fragment}
+:::
+
+:::
+::::
+
+::: {.notes}
+
+
+:::
+
+## {.inverse background-color="#000000"}
+
+::: {.r-stack}
+
+![](images/monet_4.jpg){.fragment width="800px"}
+
+![](images/monet_3.jpg){.fragment width="800px"}
+
+![](images/monet_2.jpg){.fragment width="900px"}
+
+![](images/monet.jpg){.fragment width="1000px"}
+
+
+:::
+
+## {.inverse background-color="#000000"}
+
+:::: {.columns}
+::: {.column width="45%"}
+
+![](images/monet.jpg)
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+![](images/sangiorgio.jpg)
+
+:::
+::::
+
+## {.inverse background-color="#000000"}
+
+![](images/monet_all.svg)
+
+
+::: {.notes}
+
+Claude Monet, Saint-Georges-Majeur, 1908, Venice – 37 paintings between 1.10 and 7.12
+
+Almost as many as van Eyck painted during his whole life
+
+:::
+
 ## The bottom line
 
-### Talk to your bioinformatician early!
+:::: {.columns}
+::: {.column width="45%"}
+
+::: {.callout-tip}
+## Do
+
+ * Formulate clear questions
+
+ * Manage your expectations
+
+ * Evaluate existing data - is the assay able to answer your questions?
+
+ * Read papers – which ones are similar to your study?
+
+ * Validate your results
+
+:::
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+::: {.callout-warning}
+## Don't
+
+ * expect miracles
+ 
+ * "let's just see what we can find"
+
+ * try to save money
+
+ * make too complex designs
+
+:::
+
+:::
+::::
+
+## The statistical testing roulette
+
+![](images/salmon_1.png)
+
+## The statistical testing roulette
+
+:::: {.columns}
+::: {.column width="45%"}
+
+**Subject.** One mature Atlantic Salmon (Salmo salar) participated in the fMRI study.
+The salmon was approximately 18 inches long, weighed 3.8 lbs, and was not alive at
+the time of scanning.
+
+**Task.** The task administered to the salmon involved completing an open-ended
+mentalizing task. The salmon was shown a series of photographs depicting human
+individuals in social situations with a specified emotional valence. The salmon was
+asked to determine what emotion the individual in the photo must have been
+experiencing.
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+![](images/salmon_2.png)
+
+:::
+::::
+
+::: {.aside}
+Bennett CM, Miller MB, Wolford GL. Neural correlates of interspecies perspective taking in the post-mortem Atlantic Salmon: An argument for multiple comparisons correction. Neuroimage. 2009 Jul 1;47(Suppl 1):S125.
+:::
+
+## The bottom line
+
+:::: {.columns}
+::: {.column width="45%"}
+
+#### Explorative analysis
+
+**Pro:**
+
+ * No need to define a-priori hypotheses
+ * Something unexpected and new can be found
+ * Can be used to generate hypotheses
+
+**Con:**
+
+ * Requires multiple testing correction
+ * Requires proper validation
+ * Can't do it as the last step
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+#### Hypothesis-driven analysis
+
+**Pro:**
+
+ * Clear questions
+ * Clear answers
+ * More statistical power
+ * Better story, better paper
+
+**Con:**
+
+ * Requires more planning (and thinking!)
+ * Can make you miss something unexpected
+ * If you reject the hypothesis, tough luck 
+
+:::
+::::
+
+## 
+
+::: {.callout-tip}
+## Bottom line
+ Work with a-priori hypotheses whenever you can!
+:::
 
 # Reproducibility
 
@@ -355,6 +787,17 @@ similar or not
  * The average "Methods" section is not sufficient for reproducible
    science!
 
+> " Second, **none of the 193 experiments** were described in sufficient detail
+> in the original paper to enable us to design protocols to repeat the
+> experiments, so we had to seek clarifications from the original authors."
+> (Errington et al., 2021)
+
+::: {.aside}
+Errington TM, Mathur M, Soderberg CK, Denis A, Perfito N, Iorns E, Nosek BA. Investigating the replicability of preclinical cancer biology. Elife. 2021 Dec 10;10:e71601.
+
+Errington TM, Denis A, Perfito N, Iorns E, Nosek BA. Challenges for assessing replicability in preclinical cancer biology. Elife. 2021 Dec 7;10:e67995.
+:::
+
 ## Reproducible workflows with Rmarkdown
 
 ```{mermaid}
@@ -403,9 +846,10 @@ flowchart LR
     A(Excel) --> B(Data import)
     AA(CSV, TSV) --> B(Data import)
     AAA(fastq, ...) --> B(Data import)
+    AAAA("Biological\nquestion") --> B(Data import)
     B --> C[Data\ncleanup]
-    C --> D[Long term storage]
-    C --> E[Analysis]
+    C --> CC[QC]
+    CC --> E[Analysis]
     E --> D
     E --> F(Figures)
     E --> G(Manuscript\nfragments)
@@ -413,18 +857,59 @@ flowchart LR
     F --> I[You]
     G --> I
     H --> I
-    I --> E
+    I --> J[Fine tuning]
+    J --> E
+    C --> D[(Long term storage)]
 ```
 
-In the diagram above, two things take usually the most hands-on time:
+## How we work
+
+```{mermaid}
+flowchart LR
+    A(Excel) --> B(Data import)
+    AA(CSV, TSV) --> B(Data import)
+    AAA(fastq, ...) --> B(Data import)
+    AAAA("Biological\nquestion") --> B(Data import)
+    B --> C[Data\ncleanup]
+    C --> CC[QC]
+    CC --> E[Analysis]
+    E --> D
+    E --> F(Figures)
+    E --> G(Manuscript\nfragments)
+    E --> H(Tables\nExcel files)
+    F --> I[You]
+    G --> I
+    H --> I
+    I --> J[Fine tuning]
+    J --> E
+    C --> D[(Long term storage)]
+    style C color:#000,fill:#f9f,stroke:#333,stroke-width:4px
+    style J color:#000,fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+In the diagram above, two things take usually a lot of hands-on time:
 
  * Data cleanup
  * Fine-tuning the analysis results
 
 ## Identifiers
 
+ * Never use "pure numerical" identifiers (`1`, `2`, `3`, ...)
+ * Never remove columns with "unneeded" identifiers or you can get
+   "involuntary anonymization"
+ * If you identifier is, say, `S1`, then always refer to that sample as `S1`, not `Smp. 1` or `1`
+   or `Sample 1`
+ * Better use a unique prefix for a study / cohort / experiment, like
+   `RCDB2024_S1`, `RCDB2024_S2`, `RCDB2025_S1`, `RCDB2025_S2`
+ * Composite identifiers are fine, as long as you use them consistently:
+   `WT_treatment_1`, `KO_control_2` and not `WT_treatment_1`,
+   `KO-2-control`, `WT_ctrl2`
+
 
 ::: {.notes}
+I have been working in a lab, I know how it is, you can only fit so many
+letters on the cap of an Eppendorf tube
+
  * Identifiers are unique
  * Identifiers are stable
  * Identifiers are machine-readable
@@ -492,7 +977,7 @@ Three reasons why you should follow these rules:
 :::: {.columns}
 ::: {.column width="60%"}
 
-### Avoid manually change Excel files
+### Avoid manually modifying Excel files
 
  * Manual changes cannot be tracked automatically
  * You have to record every change you make
@@ -605,7 +1090,7 @@ Make a separate excel sheet for column meta information
 ## 
 
 :::: {.columns}
-::: {.column width="50%"}
+::: {.column width="45%"}
 
 ### Things we don't like
 
@@ -618,7 +1103,9 @@ Make a separate excel sheet for column meta information
  * Non-reproducible science
 
 :::
-::: {.column width="50%"}
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
 
 ### Things we love
 
@@ -634,14 +1121,16 @@ Make a separate excel sheet for column meta information
 :::
 ::::
 
-## Things that you should probably learn
+## Things that you might want to learn
 
- * Learn how to code (preferably R or Python)
- * Learn reproducible workflows with Rmarkdown or Jupyter
+ * Statistics
+ * Coding (likely R or Python)
+ * Reproducible workflows with Quarto/Rmarkdown or Jupyter
 
+Even if you are not going to use these tools yourself, gaining an insight
+into how they work will help you to communicate with your bioinformatician.
 
-
-## Thank you {.inverse background-color="#70ADC1"}
+## Thank you {.inverse background-color="#000000"}
 
 :::: {.columns}
 
@@ -649,17 +1138,23 @@ Make a separate excel sheet for column meta information
 You can find this presentation along its source code 
 at [https://github.com/bihealth/howtotalk](https://github.com/bihealth/howtotalk)
 
+A 5 day R crash course book is available at 
+[https://bihealth.github.io/RCrashcourse-book/](https://bihealth.github.io/RCrashcourse-book/)
+
+Course materials & videos:
+[https://bihealth.github.io/RCrashcourse2023/](https://bihealth.github.io/RCrashcourse-book/)
  
 :::
 
-::: {.column width="40%"}
+::: {.column width="10%"}
 :::
 
-::: {.column width="20%"}
+::: {.column width="50%"}
 
 ```{r}
-#| fig-width: 5
-#| fig-height: 5
+#| label: qr
+#| fig-width: 4.5
+#| fig-height: 4.5
 library(qrcode)
 plot(qr_code("https://github.com/bihealth/howtotalk"))
 ```
