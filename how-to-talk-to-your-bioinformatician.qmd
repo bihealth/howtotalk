@@ -675,14 +675,6 @@ Almost as many as van Eyck painted during his whole life
 :::
 ::::
 
-## 
-
-::: {.callout-tip}
-## Bottom line
- Work with a-priori hypotheses whenever you can!
-:::
-
-
 ## The bottom line
 
 :::: {.columns}
@@ -695,7 +687,7 @@ Almost as many as van Eyck painted during his whole life
 
  * Manage your expectations
 
- * Evaluate existing data - is the assay able to answer your questions?
+ * Evaluate existing data - is the approach able to answer your questions?
 
  * Read papers – which ones are similar to your study?
 
@@ -708,7 +700,7 @@ Almost as many as van Eyck painted during his whole life
 :::
 ::: {.column width="45%"}
 
-::: {.callout-warning}
+::: {.callout-warning .fragment}
 ## Don't
 
  * expect miracles
