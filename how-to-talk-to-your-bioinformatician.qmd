@@ -263,7 +263,7 @@ not.
 
  * *Always* use effect sizes 
  * Never rely on p-values alone
- * Know their limits!!
+ * Know their limits!
 
 ::: {.callout-tip}
 ## P-values are a language
