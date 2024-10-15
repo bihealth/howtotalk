@@ -31,6 +31,13 @@ knitr:
     dev: "svg"
 ---
 
+## About this presentation
+
+Chances are, you have opened a PDF version of this presentation. Better
+go to the [HTML version at https://bihealth.github.io/howtotalk](https://bihealth.github.io/howtotalk) to see the
+original layout and the newest version.
+
+
 # Who am I to tell you things?
 
 ```{scss}
@@ -346,7 +353,7 @@ not different at all.
     p-values)
   * Considering effect sizes
   * Power analysis – estimating type II error rates (false negatives)
-  * Sign / magnitute errors 
+  * Sign / magnitude errors 
   * Bayesian statistics
   * Correcting for multiple testing
 
