@@ -7,3 +7,6 @@ A presentation for non-bioinformaticians and bioinformaticians alike
 HTML presentation.
 
 [Click here](https://bihealth.github.io/howtotalk/weiner_howtotalk_2024.pdf) for the PDF version.
+
+[Github page](https://github.com/bihealth/howtotalk).
+
