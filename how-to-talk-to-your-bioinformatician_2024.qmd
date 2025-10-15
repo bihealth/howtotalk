@@ -33,15 +33,9 @@ knitr:
 
 ## About this presentation
 
-The newest version of this presentation is available at
-[bihealth.github.io/howtotalk](https://bihealth.github.io/howtotalk).
-
-You can find the sources of the presentation (Qmd file) on 
-[github.com/bihealth/howtotalk](https://github.com/bihealth/howtotalk)
-
-
-I have elaborated parts of this talk into a little brochure, to be found at
-[bihealth.github.io/howtotalk-book](https://bihealth.github.io/howtotalk).
+Chances are, you have opened a PDF version of this presentation. Better
+go to the [HTML version at https://bihealth.github.io/howtotalk](https://bihealth.github.io/howtotalk) to see the
+original layout and the newest version.
 
 
 # Who am I to tell you things?
@@ -163,13 +157,6 @@ graph G {
 
 ::: {.notes}
 
-I am not here to teach you immunology - or even bioinformatics. 
-You will have to work with bioinformaticians, statisticians, computational biologists
-or data scientists at some point in your career. I want to help you make
-this collaboration as smooth as possible.
-
-I also want to tell you a few things that bioinformaticians wish you knew.
-
  * What you call "bioinformatics" are different areas of science
  * We can't know all biology, so be patient with us
  * Bioinformatics is not a service
@@ -177,8 +164,6 @@ I also want to tell you a few things that bioinformaticians wish you knew.
 
 Be patient with us. We are not stupid, but we don't know your context, your
 field, your abbreviations.
-
-Also, we don't even know all of statistics or bioinformatics.
 
 :::
 
@@ -215,17 +200,6 @@ Keep explaining your project – teach us!
 
 ![](images/statistics.png)
 
-
-::: {.notes}
-
-I am not her to to tell you that statistics is important. It is. But what I
-really want to convey is that statistics is *a language*. You need to speak
-this language if you want to communicate with other scientists.
-
-The point of the next slide is not to show that you don't know statistics,
-but that statistics is counter-intuitive.
-:::
-
 ## What is a p-value?
 
 $H_0$: The null hypothesis, no effect
@@ -241,11 +215,11 @@ Raise your hands if you think that the p-value is the...
  . . .
 
 
- 1. Probability that $H_0$ is true (probability that there is no difference), given the data
+ 1. Probability that $H_0$ is true, given the data
 
  . . .
 
- 1. Probability that $H_1$ is true (probability that there is a difference), given the data
+ 1. Probability that $H_1$ is wrong, given the data
 
  . . .
 
@@ -285,8 +259,7 @@ The $H_0$ is true or false, there is no probability involved.
 
 ::: {.aside}
 
-Ask me later to show you the coin trick! I can demonstrate to you that our
-intuition is bayesian, not frequentist.
+Ask me later to show you the coin trick!
 
 :::
 
@@ -556,12 +529,6 @@ ggplot(power_tot, aes(x = n_samples, y = power, color = factor(d))) +
   labs(x = "Number of samples (per group)", y = "Power") +
   facet_wrap(~ study, scales = "free_x")
 ```
-
-::: {.notes}
-Note that this is not questioning the finding that you do not need to
-increase sample size when you switch from 1-sex to 2-sex designs - as long
-as you are not interested in the interaction term!
-:::
 
 ## How many samples are sufficient?
 
@@ -1014,10 +981,6 @@ into how they work will help you to communicate with your bioinformatician.
 ::: {.column width="40%"}
 You can find this presentation along its source code 
 at [https://github.com/bihealth/howtotalk](https://github.com/bihealth/howtotalk)
-
-I have started writing a little brochure based on this presentation, you
-can find the current progress (about 10% done) at
-[https://bihealth.github.io/howtotalk-book/](https://bihealth.github.io/howtotalk-book/)
 
 A 5 day R crash course book is available at 
 [https://bihealth.github.io/RCrashcourse-book/](https://bihealth.github.io/RCrashcourse-book/)
