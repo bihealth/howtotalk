@@ -13,7 +13,8 @@ affiliations:
     city: Berlin 
     country: Germany
 title-slide-attributes:
-  data-background-image: files/bih_bg_logo.png
+  data-background-image: images/IMGP6272b-widok.jpg
+  #data-background-image: files/bih_bg_logo.png
 format:
   revealjs:
     footer: "Core Unit for Bioinformatics, BIH@Charite"
@@ -80,6 +81,10 @@ $callout-color-tip: #70ADC1;
 .aside {
   font-size: 0.65em !important;
 }
+
+.callout {
+  font-size: 1.1em !important;
+}
 ```
 
 
@@ -94,9 +99,6 @@ theme_set(theme_minimal())
 
 
 
-
-
-## Bioinformatics, statistics, computational biology
 
 ```{dot}
 #| fig-width: 12
@@ -185,13 +187,13 @@ Also, we don't even know all of statistics or bioinformatics.
 ##
 
 ::: {.callout-tip}
-## First bottom line
+## My key advice to you
 
-**Talk!**
+**Communication is key**
 
-Keep explaining your project – teach us!
-
-(it goes both ways)
+ * Keep explaining your project – teach us
+ * Work iteratively
+ * Meet frequently
 
 :::
 
@@ -209,9 +211,7 @@ Keep explaining your project – teach us!
   "professionals" are mostly in the QC and reproducibility part
 :::
 
-# Statistics
-
-## Statistics matters
+## Statistics
 
 ![](images/statistics.png)
 
@@ -245,19 +245,19 @@ Raise your hands if you think that the p-value is the...
 
  . . .
 
- 1. Probability that $H_1$ is true (probability that there is a difference), given the data
+ 2. Probability that $H_1$ is true (probability that there is a difference), given the data
 
  . . .
 
- 1. Probability that the data is random
+ 3. Probability that the data is random
 
  . . .
 
- 1. Probability that the observations are due to random chance
+ 4. Probability that the observations are due to random chance
 
  . . .
 
- 1. Probability of getting the same data by random chance
+ 5. Probability of getting the same data by random chance
 
  . . .
 
@@ -292,18 +292,34 @@ intuition is bayesian, not frequentist.
 
 ## Why is that important?
 
-P-values are the *language* of science, whether we like them (we don't) or
-not.
+
+:::: {.columns}
+
+::: {.column width="55%"}
+
+::: {.callout-tip}
+## P-values are part of scientific language
 
  * *Always* use effect sizes 
  * Never rely on p-values alone
- * Know their limits!
 
-::: {.callout-tip}
-## P-values are a language
-You have to understand p-values and their limits to talk to other
-scientists!
+Know their limits: 
+
+ * they control only type I errors (false positives)
+ * they **do not** control type II errors (false negatives)
+
 :::
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="40%"}
+
+![](images/dumbledore_p.jpg)
+
+:::
+::::
 
 ::: {.aside}
 Wasserstein RL, Lazar NA. The ASA statement on p-values: context, process, and purpose. The American Statistician. 2016 Apr 2;70(2):129-33.
@@ -324,6 +340,13 @@ two groups.
 Venn diagrams may indicate erroneous statistical reasoning in
 transcriptomics. Weiner, Obermayer and Beule, 2022, Frontiers Genetics
 :::
+
+## The results are artifacts!
+
+Groups G1 and G2 were randomly drawn from the same population. They were
+not different at all.
+
+![](images/fig2-1.jpeg)
 
 
 ## What happens is, we are comparing significance with non-significance
@@ -350,7 +373,7 @@ Don't say "there is no difference". Say "we did not detect a difference".
 Gelman A, Stern H. The difference between “significant” and “not significant” is not itself statistically significant. The American Statistician. 2006 Nov 1;60(4):328-31.
 :::
 
-## How Venn diagrams can fool scientists
+## The error is widespread
 
 Nieuwenhuis et al. found that half of the scientists who could have
 commited this error, did in fact commit this error.
@@ -363,13 +386,6 @@ Wagenmakers. "Erroneous analyses of interactions in neuroscience: a problem
 of significance." Nature neuroscience 14.9 (2011): 1105-1107.
 :::
 
-
-## The results are artifacts!
-
-Groups G1 and G2 were randomly drawn from the same population. They were
-not different at all.
-
-![](images/fig2-1.jpeg)
 
 ## Going beyond p-values
 
@@ -398,18 +414,8 @@ not different at all.
 
 # Experimental design
 
-## How many samples are sufficient?
-
-Say, we want to compare two groups with a standard $t-test$, nothing fancy.
-Our ability to detect the differences (the statistical *power*) depends on
-the sample size and the effect size[^cohen].
-
 
 ```{r echo=FALSE}
-#| label: effect_sizes
-#| fig-width: 9
-#| fig-height: 4
-# plot four effect sizes as boxplots
 library(tidyverse)
 library(ggplot2)
 library(ggbeeswarm)
@@ -429,27 +435,7 @@ df <- imap_dfr(d, ~ {
 }) %>%
   mutate(size = paste0(size, " (d=", d, ")")) %>%
   mutate(size = factor(size, levels=c("Large (d=0.8)", "Very large (d=1.2)", "Huge (d=2)", "Ludicrous (d=4)")))
-
-
-ggplot(df, aes(x = group, y = value, fill = group)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_beeswarm(alpha=.25, corral.width=1.5) +
-  facet_wrap(~ size, ncol=4) +
-  labs(x = "Group", y = "Value", fill = "Group") +
-  theme(legend.position = "none")
 ```
-
-
-
-
-
-[^cohen]: Here we use Cohen's $d$
-
-## How many samples are sufficient?
-
-The $y$ axis on this plot shows how the power of the test – meaning how
-often, assuming that the groups really differ by $d$ on average, you will
-be able to detect the difference using a t-test.
 
 ```{r echo=FALSE,cache=TRUE}
 #| label: power
@@ -472,44 +458,14 @@ power <- map_dfr(n_samp, ~ {
   })
   
 }) %>%
-  mutate(study = "Simple t-test")
+  mutate(study = "Simple t-test") |>
+  mutate(n_samples_tot = 2 * n_samples)
 ```
-
-```{r}
-#| label: power_plot_simple
-#| fig-width: 9
-#| fig-height: 4
-power$n_samples_tot <- 2 * power$n_samples
-
-ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
-  geom_point() +
-  geom_line() +
-  scale_color_brewer(palette = "Dark2", name="Effect size",
-    guide=guide_legend(reverse=TRUE)) +
-  scale_x_log10() +
-  labs(x = "Number of samples (per group)", y = "Power")
-
-```
-
-**Power**: power of 50% means that on average, you will be able to see
-statistical significance in 50% of the experiments *assuming there is a
-difference!*
-
-## How many samples are sufficient?
-
-What about the following setup:
-
- * We have 2 strains (WT and KO)
- * We have treatment + control
- * We want to know whether the treatment has a different effect on the KO
-   strain than on the WT strain
-
-This is a 2x2 design, and we need to consider the interaction term.
-
-## How many samples are sufficient?
 
 ```{r echo=FALSE,cache=TRUE}
 #| label: power_int
+
+# power calculation for interaction term
 # we could use pwr package here, but simulation is more explicit
 library(broom)
 
@@ -535,13 +491,37 @@ power_int <- map_dfr(n_samp, ~ {
     data.frame(n_samples = n_samples, d = d_val, power = mean(pwr))
   })
 }) %>% 
-  mutate(study = "Interaction")
+  mutate(study = "Interaction") |>
+  mutate(n_samples_tot = 4 * n_samples)
 ```
 
+## How many samples are sufficient?
 
+:::: {.columns}
+::: {.column width="45%"}
+
+Simple comparison between two groups
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+ * Two strains (WT and KO)
+ * Treatment + control
+ * Does treatment have a different effect on the KO
+   strain than on the WT strain?
+
+2x2 design, test for interaction term
+
+:::
+::::
 
 ```{r echo=FALSE}
 #| label: power_plot
+#| fig-width: 15
+#| fig-height: 4
+
 power_int$n_samples_tot <- power_int$n_samples * 4
 
 power_tot <- rbind(power, power_int) %>%
@@ -589,12 +569,18 @@ Colquhoun D. An investigation of the false discovery rate and the misinterpretat
 
 ::: {.callout-tip}
 ## Bottom line
- Talk to your statistician early!
 
- Keep your study design simple!
+ * Talk to your statistician early
+
+ * Strive to keep your study design simple
+
+ * Use existing data sets and simulations to test your design
+
+ * Validate your results with independent methods
+
 :::
 
-# Is high throughput data worth it?
+# High throughput data
 
 ## {.inverse background-color="#000000"}
 
@@ -727,9 +713,7 @@ Almost as many as van Eyck painted during his whole life
 
  * Manage your expectations
 
- * Evaluate existing data - is the approach able to answer your questions?
-
- * Read papers – which ones are similar to your study?
+ * Evaluate existing data
 
  * Validate your results
 
@@ -806,6 +790,10 @@ similar or not
  * The average "Methods" section is not sufficient for reproducible
    science!
 
+  . . .
+
+Attempt to replicate 53 high-impact cancer biology papers:
+
 > " Second, **none of the 193 experiments** were described in sufficient detail
 > in the original paper to enable us to design protocols to repeat the
 > experiments, so we had to seek clarifications from the original authors."
@@ -818,7 +806,7 @@ Errington TM, Denis A, Perfito N, Iorns E, Nosek BA. Challenges for assessing re
 :::
 
 
-# File formats and data management
+# Managing data
 
 ## How we work
 
@@ -827,14 +815,14 @@ flowchart LR
     A(Excel) --> B(Data import)
     AA(CSV, TSV) --> B(Data import)
     AAA(fastq, ...) --> B(Data import)
-    AAAA("Biological\nquestion") --> B(Data import)
-    B --> C[Data\ncleanup]
+    AAAA("Biological question") --> B(Data import)
+    B --> C[Data cleanup]
     C --> CC[QC]
     CC --> E[Analysis]
     E --> D
     E --> F(Figures)
-    E --> G(Manuscript\nfragments)
-    E --> H(Tables\nExcel files)
+    E --> G(Manuscript fragments)
+    E --> H(Tables, Excel files)
     F --> I[You]
     G --> I
     H --> I
@@ -850,14 +838,14 @@ flowchart LR
     A(Excel) --> B(Data import)
     AA(CSV, TSV) --> B(Data import)
     AAA(fastq, ...) --> B(Data import)
-    AAAA("Biological\nquestion") --> B(Data import)
-    B --> C[Data\ncleanup]
+    AAAA("Biological question") --> B(Data import)
+    B --> C[Data cleanup]
     C --> CC[QC]
     CC --> E[Analysis]
     E --> D
     E --> F(Figures)
-    E --> G(Manuscript\nfragments)
-    E --> H(Tables\nExcel files)
+    E --> G(Manuscript fragments)
+    E --> H(Tables, Excel files)
     F --> I[You]
     G --> I
     H --> I
@@ -872,28 +860,6 @@ In the diagram above, two things take usually a lot of hands-on time:
 
  * Understanding and cleaning the data
  * Fine-tuning the analysis results
-
-## Excel and gene names
-
-:::: {.columns}
-::: {.column width="60%"}
-
- * Excel converts some words to dates automatically
- * Gene names like `MARCH1` or `SEPT9` are converted to dates
- * In most cases[^cases], you can't switch off this behavior
-
-[^cases]: You can change the data type for a column to "text" before
-pasting data in, but this is just a workaround. In Office 365 it is
-possible to switch off this behavior.
-
-:::
-::: {.column width="5%"}
-:::
-
-::: {.column width="35%"}
-
-:::
-::::
 
 ## Excel and gene names
 
@@ -924,79 +890,15 @@ Abeysooriya M, Soria M, Kasu MS, Ziemann M. Gene name errors: Lessons not learne
  * How do you prevent automatic changes?
  * In short – how do you ensure reproducibility?
 
-## How to give us (meta-)data
+::: {.callout-tip}
+## Bottom line
 
-Part of the communication is passing on the data.
+ * Learn how to work with Excel
 
- 1. Make sure the data is **complete** (batches? replicates?)
- 1. Identifiers should be unique and non-numeric (`ID1` rather than `1`)
- 2. Use a separate sheet to describe the meaning of columns
- 3. Explain abbreviations
- 4. Make the data machine-friendly
- 5. Disclose precisely all methods (like models, kit labels etc, request them from service providers!)
-
-
-## What you should demand from your bioinformaticians
-
- * Methods used
- * Scripts / pipelines used
- * Full processed data
- * All results as tables (Excel, CSV etc)
-
-Even if you don't know what to do with all that *now*, you might be needing
-it in the future!
-
-
-## How (not to) work with Excel
-
-(for your reference)
-
- * Avoid manually changing Excel files
- * Never use formatting for data
- * Don't combine values and comments
- * Don't put meta-information into column names
- * One sheet = one table
- * Header = one line
- * Do not use merged cells
- * Use consistent file names
- * Avoid spaces in file and column names (use underscores)
-
-
-# Some more tips and summaries
-
-## 
-
-:::: {.columns}
-::: {.column width="45%"}
-
-### Things we don't like
-
- * Cleaning up data
- * Data dredging
- * P-hacking
- * Post-hoc hypotheses
- * Excel
- * Manual changes like changing fonts in figures
- * Non-reproducible science
+ * Learn more suitable tools
 
 :::
-::: {.column width="10%"}
-:::
-::: {.column width="45%"}
 
-### Things we love
-
- * Clear questions
- * A priori hypotheses
- * Challenging statistics
- * Creating new tools
- * R and Rmarkdown, or
- * Python and Jupyter
- * Reproducible workflows
- * Well organized data
-
-:::
-::::
 
 ## Things that you might want to learn
 
@@ -1006,6 +908,29 @@ it in the future!
 
 Even if you are not going to use these tools yourself, gaining an insight
 into how they work will help you to communicate with your bioinformatician.
+
+## Will "AI" change the field?
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+![](images/statistics_ai_ml.jpeg)
+
+:::
+::: {.column width="5%"}
+:::
+
+
+::: {.column width="35%"}
+
+ * New deep learning methods are useful, but hard to use 
+ * Some of them are truly revolutionizing the field
+ * There is still place for simpler ML algorithms
+ * Ready to use LLMs (ChatGPT & Co.) have their use, but also limitations
+
+:::
+::::
 
 ## Thank you {.inverse background-color="#000000"}
 
@@ -1050,7 +975,7 @@ plot(qr_code("https://github.com/bihealth/howtotalk"))
 
 ```{mermaid}
 flowchart LR
-    A(Program + Text) -->|knitr| B(Text with\nanalysis results)
+    A(Program + Text) -->|knitr| B(Text with analysis results)
     B --> C[LaTeX]
     C --> CC[PDF]
     B --> D[Word]
@@ -1237,5 +1162,197 @@ experiencing.
 ::: {.aside}
 Bennett CM, Miller MB, Wolford GL. Neural correlates of interspecies perspective taking in the post-mortem Atlantic Salmon: An argument for multiple comparisons correction. Neuroimage. 2009 Jul 1;47(Suppl 1):S125.
 :::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## How many samples are sufficient?
+
+Say, we want to compare two groups with a standard $t-test$, nothing fancy.
+Our ability to detect the differences (the statistical *power*) depends on
+the sample size and the effect size[^cohen].
+
+
+
+
+```{r echo=FALSE}
+#| label: effect_sizes
+#| fig-width: 9
+#| fig-height: 4
+# plot four effect sizes as boxplots
+ggplot(df, aes(x = group, y = value, fill = group)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_beeswarm(alpha=.25, corral.width=1.5) +
+  facet_wrap(~ size, ncol=4) +
+  labs(x = "Group", y = "Value", fill = "Group") +
+  theme(legend.position = "none")
+```
+
+
+
+
+
+[^cohen]: Here we use Cohen's $d$
+
+## How many samples are sufficient?
+
+The $y$ axis on this plot shows how the power of the test – meaning how
+often, assuming that the groups really differ by $d$ on average, you will
+be able to detect the difference using a t-test.
+
+```{r}
+#| label: power_plot_simple
+#| fig-width: 9
+#| fig-height: 4
+power$n_samples_tot <- 2 * power$n_samples
+
+ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
+  geom_point() +
+  geom_line() +
+  scale_color_brewer(palette = "Dark2", name="Effect size",
+    guide=guide_legend(reverse=TRUE)) +
+  scale_x_log10() +
+  labs(x = "Number of samples (per group)", y = "Power")
+
+```
+
+**Power**: power of 50% means that on average, you will be able to see
+statistical significance in 50% of the experiments *assuming there is a
+difference!*
+
+## How many samples are sufficient?
+
+What about the following setup:
+
+ * We have 2 strains (WT and KO)
+ * We have treatment + control
+ * We want to know whether the treatment has a different effect on the KO
+   strain than on the WT strain
+
+This is a 2x2 design, and we need to consider the interaction term.
+
+
+
+
+
+
+
+
+
+
+
+## Excel and gene names
+
+:::: {.columns}
+::: {.column width="60%"}
+
+ * Excel converts some words to dates automatically
+ * Gene names like `MARCH1` or `SEPT9` are converted to dates
+ * In most cases[^cases], you can't switch off this behavior
+
+[^cases]: You can change the data type for a column to "text" before
+pasting data in, but this is just a workaround. In Office 365 it is
+possible to switch off this behavior.
+
+:::
+::: {.column width="5%"}
+:::
+
+::: {.column width="35%"}
+
+:::
+::::
+
+
+
+
+## How to give us (meta-)data
+
+Part of the communication is passing on the data.
+
+ 1. Make sure the data is **complete** (batches? replicates?)
+ 1. Identifiers should be unique and non-numeric (`ID1` rather than `1`)
+ 2. Use a separate sheet to describe the meaning of columns
+ 3. Explain abbreviations
+ 4. Make the data machine-friendly
+ 5. Disclose precisely all methods (like models, kit labels etc, request them from service providers!)
+
+
+## What you should demand from your bioinformaticians
+
+ * Methods used
+ * Scripts / pipelines used
+ * Full processed data
+ * All results as tables (Excel, CSV etc)
+
+Even if you don't know what to do with all that *now*, you might be needing
+it in the future!
+
+
+## How (not to) work with Excel
+
+(for your reference)
+
+ * Avoid manually changing Excel files
+ * Never use formatting for data
+ * Don't combine values and comments
+ * Don't put meta-information into column names
+ * One sheet = one table
+ * Header = one line
+ * Do not use merged cells
+ * Use consistent file names
+ * Avoid spaces in file and column names (use underscores)
+
+
+# Some more tips and summaries
+
+## 
+
+:::: {.columns}
+::: {.column width="45%"}
+
+### Things we don't like
+
+ * Cleaning up data
+ * Data dredging
+ * P-hacking
+ * Post-hoc hypotheses
+ * Excel
+ * Manual changes like changing fonts in figures
+ * Non-reproducible science
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="45%"}
+
+### Things we love
+
+ * Clear questions
+ * A priori hypotheses
+ * Challenging statistics
+ * Creating new tools
+ * R and Rmarkdown, or
+ * Python and Jupyter
+ * Reproducible workflows
+ * Well organized data
+
+:::
+::::
+
+
+
+
 
 
