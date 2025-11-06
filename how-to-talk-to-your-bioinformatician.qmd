@@ -13,7 +13,7 @@ affiliations:
     city: Berlin 
     country: Germany
 title-slide-attributes:
-  data-background-image: images/IMGP6272b-widok.jpg
+  data-background-image: images/widok.jpg
   #data-background-image: files/bih_bg_logo.png
 format:
   revealjs:
