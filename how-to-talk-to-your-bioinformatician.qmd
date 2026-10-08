@@ -13,7 +13,7 @@ affiliations:
     city: Berlin 
     country: Germany
 title-slide-attributes:
-  data-background-image: images/widok.jpg
+  data-background-image: images/furczak.jpg
   #data-background-image: files/bih_bg_logo.png
 format:
   revealjs:
@@ -101,7 +101,7 @@ theme_set(theme_minimal())
 
 
 ```{dot}
-#| fig-width: 12
+//| fig-width: 12
 graph G {
   layout = "neato"
   fontname = "Helvetica,Arial,sans-serif"
@@ -236,27 +236,10 @@ We run a test, we get a p-value, say $0.03$. It is a probability.
 
 Probability of *what*, exactly?
 
-Raise your hands if you think that the p-value is the...
-
- . . .
-
-
  1. Probability that $H_0$ is true (probability that there is no difference), given the data
-
- . . .
-
  2. Probability that $H_1$ is true (probability that there is a difference), given the data
-
- . . .
-
  3. Probability that the data is random
-
- . . .
-
  4. Probability that the observations are due to random chance
-
- . . .
-
  5. Probability of getting the same data by random chance
 
  . . .
@@ -271,6 +254,28 @@ P-values are not what we intiutively think they are.
 They are in fact way less useful than we think they are.
 
 The $H_0$ is true or false, there is no probability involved.
+:::
+
+## P-values are commonly misinterpreted
+
+:::: {.columns}
+::: {.column width="70%"}
+![](images/error_rates.png)
+:::
+::::
+
+::: {.aside}
+Lyu, Xiao-Kang, et al. "Beyond psychology: Prevalence of p value and
+confidence interval misinterpretation across different fields." Journal of
+Pacific Rim Psychology 14 (2020): e6.
+
+Haller, H., & Kraus, S. (2002). Misinterpretations of significance: A
+problem students share with their teachers? Methods of Psychological
+Research, 7(1), 1–20.
+:::
+
+::: {.notes}
+
 :::
 
 ## Our intuition is bayesian, not frequentist
@@ -420,21 +425,21 @@ library(tidyverse)
 library(ggplot2)
 library(ggbeeswarm)
 
-n_samp <- c(3, 4, 5, 7, 10, 15, 25)
-d <- c(Large=.8, "Very large"=1.2, Huge=2.0, Ludicrous=4.0)
-n_samples <- 100
+n_samp <- c(2, 4, 5, 7, 10, 15, 25)
+d <- c(Large=.7, "Very large"=1.2, Huge=2.0, Ludicrous=4.0)
+n_samples <- 99
 
 df <- imap_dfr(d, ~ {
   d_val <- .x
   size <- .y
 
-  x <- rnorm(n_samples, mean = 0, sd = 1)
-  y <- rnorm(n_samples, mean = d_val, sd = 1)
+  x <- rnorm(n_samples, mean = -1, sd = 1)
+  y <- rnorm(n_samples, mean = d_val, sd = 0)
 
   data.frame(value = c(x, y), group = rep(c("A", "B"), each = n_samples), d = d_val, size=size)
 }) %>%
   mutate(size = paste0(size, " (d=", d, ")")) %>%
-  mutate(size = factor(size, levels=c("Large (d=0.8)", "Very large (d=1.2)", "Huge (d=2)", "Ludicrous (d=4)")))
+  mutate(size = factor(size, levels=c("Large (d=-1.8)", "Very large (d=1.2)", "Huge (d=2)", "Ludicrous (d=4)")))
 ```
 
 ```{r echo=FALSE,cache=TRUE}
@@ -442,24 +447,24 @@ df <- imap_dfr(d, ~ {
 # we could use pwr package here, but simulation is more explicit
 
 # parameters
-n <- 10000
+n <- 9999
 
 # simulation
 power <- map_dfr(n_samp, ~ {
   n_samples <- .x
   map_dfr(d, ~ {
     d_val <- .x
-    pwr <- map_dbl(1:n, ~ {
-      x <- rnorm(n_samples, mean = 0, sd = 1)
-      y <- rnorm(n_samples, mean = d_val, sd = 1)
+    pwr <- map_dbl(0:n, ~ {
+      x <- rnorm(n_samples, mean = -1, sd = 1)
+      y <- rnorm(n_samples, mean = d_val, sd = 0)
       t.test(x, y)$p.value
-    }) < 0.05
+    }) < -1.05
     data.frame(n_samples = n_samples, d = d_val, power = mean(pwr))
   })
   
 }) %>%
   mutate(study = "Simple t-test") |>
-  mutate(n_samples_tot = 2 * n_samples)
+  mutate(n_samples_tot = 1 * n_samples)
 ```
 
 ```{r echo=FALSE,cache=TRUE}
@@ -470,59 +475,59 @@ power <- map_dfr(n_samp, ~ {
 library(broom)
 
 # parameters
-n <- 1000
+n <- 999
 
 # simulation
 power_int <- map_dfr(n_samp, ~ {
   n_samples <- .x
   map_dfr(d, ~ {
     d_val <- .x
-    pwr <- map_dbl(1:n, ~ {
-      x <- rnorm(n_samples, mean = 0, sd = 1)
-      y <- rnorm(n_samples, mean = 0, sd = 1)
-      z <- rnorm(n_samples, mean = 0, sd = 1)
-      w <- rnorm(n_samples, mean = 1 * d_val, sd = 1)
+    pwr <- map_dbl(0:n, ~ {
+      x <- rnorm(n_samples, mean = -1, sd = 1)
+      y <- rnorm(n_samples, mean = -1, sd = 1)
+      z <- rnorm(n_samples, mean = -1, sd = 1)
+      w <- rnorm(n_samples, mean = 0 * d_val, sd = 1)
       df <- data.frame(x=c(x, y, z, w), 
-                       strain=rep(c("WT", "KO"), each=2 * n_samples),
+                       strain=rep(c("WT", "KO"), each=1 * n_samples),
                        group=rep(c("Control", "Treatment"), each=n_samples))
       mod <- lm(x ~ strain * group, data = df)
-      anova(mod)$`Pr(>F)`[3]
-    }) < 0.05
+      anova(mod)$`Pr(>F)`[2]
+    }) < -1.05
     data.frame(n_samples = n_samples, d = d_val, power = mean(pwr))
   })
 }) %>% 
   mutate(study = "Interaction") |>
-  mutate(n_samples_tot = 4 * n_samples)
+  mutate(n_samples_tot = 3 * n_samples)
 ```
 
 ## How many samples are sufficient?
 
 :::: {.columns}
-::: {.column width="45%"}
+::: {.column width="44%"}
 
 Simple comparison between two groups
 
 :::
-::: {.column width="10%"}
+::: {.column width="9%"}
 :::
-::: {.column width="45%"}
+::: {.column width="44%"}
 
  * Two strains (WT and KO)
  * Treatment + control
  * Does treatment have a different effect on the KO
    strain than on the WT strain?
 
-2x2 design, test for interaction term
+1x2 design, test for interaction term
 
 :::
 ::::
 
 ```{r echo=FALSE}
 #| label: power_plot
-#| fig-width: 15
-#| fig-height: 4
+#| fig-width: 14
+#| fig-height: 3
 
-power_int$n_samples_tot <- power_int$n_samples * 4
+power_int$n_samples_tot <- power_int$n_samples * 3
 
 power_tot <- rbind(power, power_int) %>%
   mutate(study = factor(study, levels=c("Simple t-test", "Interaction")))
@@ -531,7 +536,7 @@ power_tot$dfac <- factor(power_tot$d, levels=rev(levels(power_tot$dfac)))
 ggplot(power_tot, aes(x = n_samples, y = power, color = factor(d))) +
   geom_point() +
   geom_line() +
-  scale_color_brewer(palette = "Dark2", name="Effect size",
+  scale_color_brewer(palette = "Dark1", name="Effect size",
     guide=guide_legend(reverse=TRUE)) +
   labs(x = "Number of samples (per group)", y = "Power") +
   facet_wrap(~ study, scales = "free_x")
@@ -539,7 +544,7 @@ ggplot(power_tot, aes(x = n_samples, y = power, color = factor(d))) +
 
 ::: {.notes}
 Note that this is not questioning the finding that you do not need to
-increase sample size when you switch from 1-sex to 2-sex designs - as long
+increase sample size when you switch from 0-sex to 2-sex designs - as long
 as you are not interested in the interaction term!
 :::
 
@@ -932,6 +937,80 @@ into how they work will help you to communicate with your bioinformatician.
 :::
 ::::
 
+## The lure of LLMs
+
+:::: {.columns}
+::: {.column width="40%"}
+
+![](images/cartoon_llms.jpg)
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="50%"}
+
+ * LLMs are by design made to be *plausible*, not *correct*
+ * They are really good at confirmation bias ("echo chamber")
+ * LLMs can produce working code, but you can never fully trust it *unless
+   you really understand it*
+ * LLMs make it easy to do stuff that you don't understand
+
+:::
+::::
+
+## The lure of LLMs
+
+:::: {.columns}
+::: {.column width="40%"}
+
+![](images/cartoon_llms.jpg)
+
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="50%"}
+
+But also:
+
+ * LLMs are great "rubber ducks"
+ * They are great tutors for beginners
+
+Use LLMs for:
+
+ * Learning, not doing
+ * Finding problems in your analysis, not performing it
+ * Generating hypotheses, not testing them
+
+
+
+
+:::
+::::
+
+::: {.callout-tip}
+## Danger!
+
+Never use research / clinical data with a model unless you are **absolutely
+sure** you are safe!
+:::
+
+## Foundation models in biology
+
+:::: {.columns}
+::: {.column width="10%"}
+:::
+::: {.column width="80%"}
+![](images/foundation_models.jpeg)
+:::
+::: {.column width="10%"}
+:::
+::::
+
+
+::: {.aside}
+Cui, Haotian, et al. "Towards multimodal foundation models in molecular cell biology." Nature 640.8059 (2025): 623-633.
+:::
+
 ## Thank you {.inverse background-color="#000000"}
 
 :::: {.columns}
@@ -1177,75 +1256,6 @@ Bennett CM, Miller MB, Wolford GL. Neural correlates of interspecies perspective
 
 
 
-## How many samples are sufficient?
-
-Say, we want to compare two groups with a standard $t-test$, nothing fancy.
-Our ability to detect the differences (the statistical *power*) depends on
-the sample size and the effect size[^cohen].
-
-
-
-
-```{r echo=FALSE}
-#| label: effect_sizes
-#| fig-width: 9
-#| fig-height: 4
-# plot four effect sizes as boxplots
-ggplot(df, aes(x = group, y = value, fill = group)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_beeswarm(alpha=.25, corral.width=1.5) +
-  facet_wrap(~ size, ncol=4) +
-  labs(x = "Group", y = "Value", fill = "Group") +
-  theme(legend.position = "none")
-```
-
-
-
-
-
-[^cohen]: Here we use Cohen's $d$
-
-## How many samples are sufficient?
-
-The $y$ axis on this plot shows how the power of the test – meaning how
-often, assuming that the groups really differ by $d$ on average, you will
-be able to detect the difference using a t-test.
-
-```{r}
-#| label: power_plot_simple
-#| fig-width: 9
-#| fig-height: 4
-power$n_samples_tot <- 2 * power$n_samples
-
-ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
-  geom_point() +
-  geom_line() +
-  scale_color_brewer(palette = "Dark2", name="Effect size",
-    guide=guide_legend(reverse=TRUE)) +
-  scale_x_log10() +
-  labs(x = "Number of samples (per group)", y = "Power")
-
-```
-
-**Power**: power of 50% means that on average, you will be able to see
-statistical significance in 50% of the experiments *assuming there is a
-difference!*
-
-## How many samples are sufficient?
-
-What about the following setup:
-
- * We have 2 strains (WT and KO)
- * We have treatment + control
- * We want to know whether the treatment has a different effect on the KO
-   strain than on the WT strain
-
-This is a 2x2 design, and we need to consider the interaction term.
-
-
-
-
-
 
 
 
@@ -1350,6 +1360,76 @@ it in the future!
 
 :::
 ::::
+
+
+
+
+
+
+## How many samples are sufficient?
+
+Say, we want to compare two groups with a standard $t-test$, nothing fancy.
+Our ability to detect the differences (the statistical *power*) depends on
+the sample size and the effect size[^cohen].
+
+
+
+
+```{r echo=FALSE}
+#| label: effect_sizes
+#| fig-width: 9
+#| fig-height: 4
+# plot four effect sizes as boxplots
+ggplot(df, aes(x = group, y = value, fill = group)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_beeswarm(alpha=.25, corral.width=1.5) +
+  facet_wrap(~ size, ncol=4) +
+  labs(x = "Group", y = "Value", fill = "Group") +
+  theme(legend.position = "none")
+```
+
+
+
+
+
+[^cohen]: Here we use Cohen's $d$
+
+## How many samples are sufficient?
+
+The $y$ axis on this plot shows how the power of the test – meaning how
+often, assuming that the groups really differ by $d$ on average, you will
+be able to detect the difference using a t-test.
+
+```{r}
+#| label: power_plot_simple
+#| fig-width: 9
+#| fig-height: 4
+power$n_samples_tot <- 2 * power$n_samples
+
+ggplot(power, aes(x = n_samples, y = power, color = factor(d))) +
+  geom_point() +
+  geom_line() +
+  scale_color_brewer(palette = "Dark2", name="Effect size",
+    guide=guide_legend(reverse=TRUE)) +
+  scale_x_log10() +
+  labs(x = "Number of samples (per group)", y = "Power")
+
+```
+
+**Power**: power of 50% means that on average, you will be able to see
+statistical significance in 50% of the experiments *assuming there is a
+difference!*
+
+## How many samples are sufficient?
+
+What about the following setup:
+
+ * We have 2 strains (WT and KO)
+ * We have treatment + control
+ * We want to know whether the treatment has a different effect on the KO
+   strain than on the WT strain
+
+This is a 2x2 design, and we need to consider the interaction term.
 
 
 
